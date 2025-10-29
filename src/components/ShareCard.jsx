@@ -1,59 +1,53 @@
-import React, { useMemo, useState } from 'react';
-import { Link as LinkIcon, QrCode, Share2, Copy } from 'lucide-react';
+import { useMemo, useState } from "react";
+import { Copy, ExternalLink } from "lucide-react";
 
-export default function ShareCard({ ready, modelId }) {
+export default function ShareCard({ ready }) {
   const [copied, setCopied] = useState(false);
   const shareUrl = useMemo(() => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://app.example.com';
-    return `${origin}/webar/${modelId}`;
-  }, [modelId]);
+    const id = Math.random().toString(36).slice(2, 8);
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://example.com';
+    return `${origin}/webar?asset=demo-glb&id=${id}`;
+  }, [ready]);
 
   const qrSrc = useMemo(() => {
-    const data = encodeURIComponent(shareUrl);
-    return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${data}`;
+    const encoded = encodeURIComponent(shareUrl);
+    return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encoded}`;
   }, [shareUrl]);
 
-  const copy = async () => {
+  const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch {}
+    } catch (e) {
+      // no-op
+    }
   };
 
-  return (
-    <section className="mx-auto mt-8 max-w-6xl rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
-      <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-        <div className="flex items-start gap-4">
-          <div className="rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-200">
-            <QrCode className="h-6 w-6 text-emerald-600" />
-          </div>
-          <div>
-            <h3 className="font-manrope text-xl font-bold text-slate-900">{ready ? 'Prêt à partager' : 'Génération du lien'}</h3>
-            <p className="mt-1 text-sm text-slate-700">QR code unique + lien click-to-AR. Ouvre la caméra automatiquement sur mobile compatible.</p>
+  if (!ready) return null;
 
-            <div className="mt-4 flex items-center gap-2 rounded-xl bg-white p-2 ring-1 ring-slate-200">
-              <div className="truncate px-2 text-sm text-slate-800">{shareUrl}</div>
-              <button onClick={copy} className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800">
-                <Copy className="h-3.5 w-3.5" />
-                {copied ? 'Copié' : 'Copier'}
+  return (
+    <section className="mx-auto max-w-5xl px-6 pb-20">
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+        <div className="flex flex-col items-center gap-6 md:flex-row">
+          <img src={qrSrc} alt="QR code" className="h-40 w-40 rounded-lg bg-white p-2" />
+
+          <div className="flex-1">
+            <div className="text-lg font-medium text-white">Votre expérience WebAR est prête</div>
+            <p className="mt-1 text-white/70 text-sm">Scannez le QR code ou ouvrez le lien sur un appareil compatible AR pour visualiser le clone à l'échelle réelle.</p>
+
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <div className="truncate rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white/80">
+                {shareUrl}
+              </div>
+              <button onClick={copyLink} className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-slate-900 shadow">
+                <Copy className="h-4 w-4" /> {copied ? "Copié" : "Copier"}
               </button>
-              <a href={shareUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500">
-                <LinkIcon className="h-3.5 w-3.5" />
-                Ouvrir
+              <a href={shareUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2 text-white/90 hover:bg-white/10">
+                <ExternalLink className="h-4 w-4" /> Ouvrir en AR
               </a>
             </div>
-
-            <div className="mt-3 flex items-center gap-2 text-xs text-slate-600">
-              <Share2 className="h-3.5 w-3.5" />
-              Partage rapide: WhatsApp, Mail, Copier lien
-            </div>
           </div>
-        </div>
-
-        <div className="flex flex-col items-center gap-2">
-          <img src={qrSrc} alt="QR code" className="h-[220px] w-[220px] rounded-lg bg-white p-2 shadow-sm ring-1 ring-slate-200" />
-          <p className="text-xs text-slate-600">Scanne pour ouvrir en AR</p>
         </div>
       </div>
     </section>

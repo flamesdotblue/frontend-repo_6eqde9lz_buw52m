@@ -1,48 +1,68 @@
-import React from 'react';
-import { Cpu, CloudUpload } from 'lucide-react';
+import { useEffect } from "react";
 
-export default function ScanProgress({ images, progress, processing, onUpload }) {
-  const canUpload = images >= 20 && !processing;
+const STEPS = [
+  { label: "Téléversement des images", value: 10 },
+  { label: "Alignement des vues", value: 30 },
+  { label: "Nuage de points dense", value: 55 },
+  { label: "Maillage 3D", value: 75 },
+  { label: "Texturing PBR", value: 90 },
+  { label: "Export .glb", value: 100 },
+];
+
+export default function ScanProgress({ imagesCount, processing, setProcessing, progress, setProgress, setReady }) {
+  useEffect(() => {
+    if (processing) {
+      let i = 0;
+      const tick = () => {
+        if (i >= STEPS.length) return;
+        const step = STEPS[i];
+        setProgress(step.value);
+        i += 1;
+        if (i === STEPS.length) {
+          setTimeout(() => setReady(true), 400);
+        } else {
+          setTimeout(tick, 700);
+        }
+      };
+      setProgress(0);
+      tick();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [processing]);
 
   return (
-    <section className="mx-auto mt-8 max-w-6xl rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h3 className="font-manrope text-xl font-bold text-slate-900">Préparation & traitement</h3>
-          <p className="text-sm text-slate-600">Photogrammétrie • Reconstruction mesh • Texturage • GLB optimisé</p>
+    <section className="mx-auto max-w-5xl px-6 py-10">
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-lg font-medium text-white">Traitement</div>
+            <div className="text-white/60 text-sm">Pipeline photogrammétrique simulé en 6 étapes</div>
+          </div>
+          <button
+            disabled={imagesCount === 0 || processing}
+            onClick={() => setProcessing(true)}
+            className="rounded-xl bg-white px-4 py-2 font-medium text-slate-900 shadow disabled:opacity-50"
+          >
+            Uploader & traiter ({imagesCount})
+          </button>
         </div>
-        <button
-          disabled={!canUpload}
-          onClick={onUpload}
-          className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${canUpload ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-slate-300 cursor-not-allowed'}`}
-        >
-          <CloudUpload className="h-4 w-4" />
-          {processing ? 'En cours…' : 'Uploader & traiter'}
-        </button>
-      </div>
 
-      <div className="mt-6">
-        <div className="mb-2 flex items-center gap-2 text-slate-700">
-          <Cpu className="h-4 w-4" />
-          <span className="text-sm">Progression pipeline</span>
+        <div className="mt-6">
+          <div className="h-3 w-full overflow-hidden rounded-full bg-white/10">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-[width] duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-white/70 md:grid-cols-6">
+            {STEPS.map((s) => (
+              <div key={s.label} className={`rounded border px-2 py-1 ${progress >= s.value ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-200" : "border-white/10 bg-white/5"}`}>
+                {s.label}
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="h-3 w-full overflow-hidden rounded-full bg-slate-100">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <div className="mt-2 text-right text-xs text-slate-500">{progress}%</div>
       </div>
-
-      <ul className="mt-4 grid grid-cols-1 gap-2 text-sm text-slate-700 md:grid-cols-3">
-        <li>• Alignement photos</li>
-        <li>• Densification nuage</li>
-        <li>• Mesh + UV</li>
-        <li>• Réduction polycount</li>
-        <li>• Texture bake</li>
-        <li>• GLB/DRACO</li>
-      </ul>
     </section>
   );
 }
