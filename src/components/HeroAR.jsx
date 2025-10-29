@@ -1,15 +1,14 @@
 import React from 'react';
-import Spline from '@splinetool/react-spline';
 import { Rocket, Camera, QrCode } from 'lucide-react';
 
 export default function HeroAR({ onStart }) {
   return (
-    <section className="relative isolate w-full min-h-[70vh] overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 text-white shadow-xl">
-      <div className="absolute inset-0">
-        <Spline
-          scene="https://prod.spline.design/1r3oQNo4l7RkQm9N/scene.splinecode"
-          style={{ width: '100%', height: '100%' }}
-        />
+    <section className="relative isolate w-full min-h-[70vh] overflow-hidden rounded-2xl bg-slate-900 text-white shadow-xl">
+      {/* Animated gradient background (replaces heavy 3D scene for reliability) */}
+      <div aria-hidden className="absolute inset-0">
+        <div className="absolute -top-24 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-emerald-500/20 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_0%,rgba(255,255,255,0.08),rgba(0,0,0,0))]" />
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-[70vh] max-w-6xl flex-col items-center justify-center px-6 text-center">
