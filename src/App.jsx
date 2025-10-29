@@ -25,22 +25,50 @@ export default function App() {
   }, [stream]);
 
   const startScan = async () => {
-    try {
-      const media = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } },
-        audio: false,
-      });
-      setStream(media);
-      setStarted(true);
-      setTimeout(() => {
-        const el = document.getElementById("guide");
-        el?.scrollIntoView({ behavior: "smooth", block: "start" });
-        setHighlightGuide(true);
-        setTimeout(() => setHighlightGuide(false), 1400);
-      }, 50);
-    } catch (e) {
-      alert("Impossible d'accéder à la caméra. Veuillez autoriser l'accès.");
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+      alert("La capture n'est pas prise en charge par ce navigateur.");
+      return;
     }
+    if (!window.isSecureContext) {
+      alert("L'accès à la caméra nécessite HTTPS. Veuillez ouvrir la page en connexion sécurisée.");
+      return;
+    }
+
+    const tryConstraints = async (constraints) => {
+      try {
+        return await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (_) {
+        return null;
+      }
+    };
+
+    // Essais progressifs pour maximiser la compatibilité (iOS/Android/Desktop)
+    const attempts = [
+      { video: { facingMode: { exact: "environment" } }, audio: false },
+      { video: { facingMode: { ideal: "environment" } }, audio: false },
+      { video: true, audio: false },
+    ];
+
+    let media = null;
+    for (const constraints of attempts) {
+      // eslint-disable-next-line no-await-in-loop
+      media = await tryConstraints(constraints);
+      if (media) break;
+    }
+
+    if (!media) {
+      alert("Impossible d'accéder à la caméra. Vérifiez les permissions dans votre navigateur/appareil.");
+      return;
+    }
+
+    setStream(media);
+    setStarted(true);
+    setTimeout(() => {
+      const el = document.getElementById("guide");
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setHighlightGuide(true);
+      setTimeout(() => setHighlightGuide(false), 1600);
+    }, 60);
   };
 
   const resetAll = () => {

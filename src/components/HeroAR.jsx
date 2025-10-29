@@ -28,7 +28,7 @@ export default function HeroAR({ onStart }) {
             className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 font-medium text-slate-900 shadow-lg shadow-white/10 transition hover:-translate-y-0.5 hover:shadow-xl"
           >
             <Camera className="h-5 w-5" />
-            Démarrer un scan
+            Démarrer une capture
           </button>
           <a
             href="#guide"
