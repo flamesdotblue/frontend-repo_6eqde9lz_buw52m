@@ -1,9 +1,14 @@
 import React from 'react';
 import { Sun, Aperture, Compass, Image as ImageIcon } from 'lucide-react';
 
-export default function CaptureGuide({ images, onCaptureBurst, onReset }) {
+export default function CaptureGuide({ images, onCaptureBurst, onReset, highlight = false }) {
   return (
-    <section id="guide" className="mx-auto mt-12 max-w-6xl rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+    <section
+      id="guide"
+      className={`mx-auto mt-12 max-w-6xl rounded-2xl border bg-white p-6 shadow-sm transition-colors ${
+        highlight ? 'border-emerald-400 ring-2 ring-emerald-300/50' : 'border-slate-200/60'
+      }`}
+    >
       <h2 className="font-manrope text-2xl font-bold text-slate-900 md:text-3xl">Guide de capture 360°</h2>
       <p className="mt-2 text-slate-600">
         Place l’objet sur une surface stable et bien éclairée. Tourne autour pour capturer 20 à 48 photos nettes.

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import HeroAR from './components/HeroAR';
 import CaptureGuide from './components/CaptureGuide';
 import ScanProgress from './components/ScanProgress';
@@ -6,12 +6,24 @@ import ShareCard from './components/ShareCard';
 
 export default function App() {
   const [started, setStarted] = useState(false);
+  const [highlightGuide, setHighlightGuide] = useState(false);
   const [images, setImages] = useState(0);
   const [processing, setProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [ready, setReady] = useState(false);
 
   const modelId = useMemo(() => (ready ? 'xyz123' : 'pending'), [ready]);
+
+  useEffect(() => {
+    if (!started) return;
+    const el = document.getElementById('guide');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setHighlightGuide(true);
+      const t = setTimeout(() => setHighlightGuide(false), 1400);
+      return () => clearTimeout(t);
+    }
+  }, [started]);
 
   const captureBurst = () => {
     setImages((prev) => Math.min(prev + 4, 48));
@@ -48,7 +60,12 @@ export default function App() {
 
         <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <CaptureGuide images={images} onCaptureBurst={captureBurst} onReset={resetCapture} />
+            <CaptureGuide
+              images={images}
+              onCaptureBurst={captureBurst}
+              onReset={resetCapture}
+              highlight={highlightGuide}
+            />
             <ScanProgress
               images={images}
               progress={progress}
